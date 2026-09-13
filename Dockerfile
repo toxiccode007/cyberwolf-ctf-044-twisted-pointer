@@ -1,6 +1,10 @@
-FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libc6-dev && rm -rf /var/lib/apt/lists/*
+FROM python:3.12-slim
+
 WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . .
-RUN gcc -O0 -fno-stack-protector -no-pie -o challenge_files/twisted_pointer challenge_files/twisted_pointer.c && rm challenge_files/twisted_pointer.c
-CMD ["sh","-c","python3 app.py"]
+
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} app:app"]
